@@ -1,0 +1,56 @@
+---
+interface Props {
+  title: string;
+  slug: string;
+  date: Date;
+  categories: Array<{ name: string }>;
+  images: Array<{
+    src: string;
+    caption?: string;
+    featured?: boolean;
+  }>;
+}
+
+const { title, slug, date, categories, images } = Astro.props;
+
+// Find featured image or use first image
+const featuredImage = images.find((img) => img.featured) || images[0];
+---
+
+<article
+  class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+>
+  <a href={`/projects/${slug}`} class="block">
+    {
+      featuredImage && (
+        <div class="aspect-video w-full overflow-hidden">
+          <img
+            src={featuredImage.src}
+            alt={featuredImage.caption || title}
+            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+      )
+    }
+    <div class="p-4">
+      <h3 class="text-xl font-semibold mb-2">{title}</h3>
+      <div class="flex flex-wrap gap-2 mb-2">
+        {
+          categories.map((category) => (
+            <span class="text-sm px-2 py-1 bg-gray-100 rounded-full">
+              {category.name}
+            </span>
+          ))
+        }
+      </div>
+      <time datetime={date.toISOString()} class="text-sm text-gray-600">
+        {
+          new Date(date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+          })
+        }
+      </time>
+    </div>
+  </a>
+</article>

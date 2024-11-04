@@ -1,0 +1,110 @@
+---
+import ProjectGrid from "./ProjectGrid.astro";
+
+interface Project {
+  title: string;
+  slug: string;
+  date: Date;
+  categories: Array<{ name: string }>;
+  images: Array<{
+    src: string;
+    caption?: string;
+    featured?: boolean;
+  }>;
+}
+
+interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+
+// Get unique categories from all projects
+const categories = [
+  ...new Set(
+    projects.flatMap((project) => project.categories.map((cat) => cat.name))
+  ),
+].sort();
+---
+
+<div class="space-y-8">
+  <div
+    class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center"
+  >
+    <div class="flex flex-wrap gap-4">
+      <select
+        id="category-filter"
+        class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">All Categories</option>
+        {
+          categories.map((category) => (
+            <option value={category}>{category}</option>
+          ))
+        }
+      </select>
+
+      <select
+        id="sort-order"
+        class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="desc">Newest First</option>
+        <option value="asc">Oldest First</option>
+      </select>
+    </div>
+
+    <button
+      id="clear-filters"
+      class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900"
+    >
+      Clear Filters
+    </button>
+  </div>
+
+  <div id="project-grid">
+    <ProjectGrid projects={projects} />
+  </div>
+</div>
+
+<script>
+  let currentCategory = "";
+  let currentSortOrder: "asc" | "desc" = "desc";
+
+  function updateGrid() {
+    const gridElement = document.getElementById("project-grid");
+    if (gridElement) {
+      // Using data attributes to pass the current filters to Astro
+      gridElement.setAttribute("data-category", currentCategory);
+      gridElement.setAttribute("data-sort", currentSortOrder);
+      // In a real implementation, you might want to use a client-side router
+      // or fetch updated content from an API endpoint
+      window.location.search = `?category=${currentCategory}&sort=${currentSortOrder}`;
+    }
+  }
+
+  // Category filter
+  const categoryFilter = document.getElementById(
+    "category-filter"
+  ) as HTMLSelectElement;
+  categoryFilter?.addEventListener("change", (e) => {
+    currentCategory = (e.target as HTMLSelectElement).value;
+    updateGrid();
+  });
+
+  // Sort order
+  const sortOrder = document.getElementById("sort-order") as HTMLSelectElement;
+  sortOrder?.addEventListener("change", (e) => {
+    currentSortOrder = (e.target as HTMLSelectElement).value as "asc" | "desc";
+    updateGrid();
+  });
+
+  // Clear filters
+  const clearFilters = document.getElementById("clear-filters");
+  clearFilters?.addEventListener("click", () => {
+    currentCategory = "";
+    currentSortOrder = "desc";
+    if (categoryFilter) categoryFilter.value = "";
+    if (sortOrder) sortOrder.value = "desc";
+    updateGrid();
+  });
+</script>

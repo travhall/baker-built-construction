@@ -1,0 +1,64 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ProjectGallery from "../../components/projects/ProjectGallery.astro";
+import { client } from "../../../tina/__generated__/client";
+
+// Get URL params for filtering/sorting
+const { searchParams } = Astro.url;
+const categoryFilter = searchParams.get("category");
+const sortOrder = (searchParams.get("sort") as "asc" | "desc") || "desc";
+
+// Fetch all projects using TinaCMS client
+const tinaResponse = await client.queries.projectConnection({
+  sort: "date", // Sort by date field
+  last: 100, // Adjust this number based on your needs
+});
+
+// Transform the data for our components
+const projects = (tinaResponse.data.projectConnection.edges || [])
+  .map((edge) => {
+    const node = edge?.node;
+    if (!node) return null;
+
+    return {
+      title: node.title || "",
+      slug: node._sys.filename,
+      date: new Date(node.date),
+      categories:
+        node.categories?.map((cat) => ({
+          name: cat?.name || "",
+        })) || [],
+      images:
+        node.images?.map((img) => ({
+          src: img?.src || "",
+          caption: img?.caption || "",
+          featured: img?.featured || false,
+        })) || [],
+      featured: node.featured || false,
+    };
+  })
+  .filter(
+    (project): project is NonNullable<typeof project> => project !== null
+  );
+
+// Filter by category if specified
+const filteredProjects = categoryFilter
+  ? projects.filter((project) =>
+      project.categories.some((cat) => cat.name === categoryFilter)
+    )
+  : projects;
+
+// Sort projects
+const sortedProjects = [...filteredProjects].sort((a, b) => {
+  const dateA = new Date(a.date).getTime();
+  const dateB = new Date(b.date).getTime();
+  return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+});
+---
+
+<Layout title="Projects">
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Our Projects</h1>
+    <ProjectGallery projects={sortedProjects} />
+  </main>
+</Layout>

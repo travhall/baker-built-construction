@@ -1,0 +1,51 @@
+---
+import ProjectCard from "./ProjectCard.astro";
+
+interface Project {
+  title: string;
+  slug: string;
+  date: Date;
+  categories: Array<{ name: string }>;
+  images: Array<{
+    src: string;
+    caption?: string;
+    featured?: boolean;
+  }>;
+}
+
+interface Props {
+  projects: Project[];
+  selectedCategory?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+const { projects, selectedCategory, sortOrder = "desc" } = Astro.props;
+
+// Filter projects by category if one is selected
+let filteredProjects = selectedCategory
+  ? projects.filter((project) =>
+      project.categories.some((cat) => cat.name === selectedCategory)
+    )
+  : projects;
+
+// Sort projects by date
+filteredProjects = filteredProjects.sort((a, b) => {
+  const dateA = new Date(a.date).getTime();
+  const dateB = new Date(b.date).getTime();
+  return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+});
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {
+    filteredProjects.map((project) => (
+      <ProjectCard
+        title={project.title}
+        slug={project.slug}
+        date={project.date}
+        categories={project.categories}
+        images={project.images}
+      />
+    ))
+  }
+</div>

@@ -1,0 +1,131 @@
+---
+import Layout from "./Layout.astro";
+
+interface Image {
+  src: string;
+  caption?: string;
+  featured?: boolean;
+}
+
+interface Project {
+  title: string;
+  date: Date;
+  description: string;
+  categories: Array<{ name: string }>;
+  images: Image[];
+}
+
+interface Props {
+  project: Project;
+  prevProject?: { title: string; slug: string };
+  nextProject?: { title: string; slug: string };
+}
+
+const { project, prevProject, nextProject } = Astro.props;
+const { title, date, description, categories, images } = project;
+---
+
+<Layout title={title}>
+  <article class="max-w-4xl mx-auto px-4 py-8">
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold mb-4">{title}</h1>
+      <div class="flex flex-wrap gap-2 mb-4">
+        {
+          categories.map((category) => (
+            <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">
+              {category.name}
+            </span>
+          ))
+        }
+      </div>
+      <time datetime={date.toISOString()} class="text-gray-600">
+        {
+          new Date(date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        }
+      </time>
+    </header>
+
+    <div class="prose max-w-none mb-12">
+      <Fragment set:html={description} />
+    </div>
+
+    <div class="grid gap-8">
+      {
+        images.map((image) => (
+          <figure class="space-y-2">
+            <img
+              src={image.src}
+              alt={image.caption || title}
+              class="w-full rounded-lg"
+            />
+            {image.caption && (
+              <figcaption class="text-center text-gray-600 italic">
+                {image.caption}
+              </figcaption>
+            )}
+          </figure>
+        ))
+      }
+    </div>
+
+    <nav class="mt-12 flex justify-between items-center pt-8 border-t">
+      {
+        prevProject ? (
+          <a
+            href={`/projects/${prevProject.slug}`}
+            class="group flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 transition-transform group-hover:-translate-x-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            <span>{prevProject.title}</span>
+          </a>
+        ) : (
+          <div />
+        )
+      }
+
+      {
+        nextProject ? (
+          <a
+            href={`/projects/${nextProject.slug}`}
+            class="group flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          >
+            <span>{nextProject.title}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 transition-transform group-hover:translate-x-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+        ) : (
+          <div />
+        )
+      }
+    </nav>
+  </article>
+</Layout>
