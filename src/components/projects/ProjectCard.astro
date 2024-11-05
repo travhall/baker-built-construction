@@ -1,14 +1,9 @@
 ---
-interface Props {
-  title: string;
-  slug: string;
-  date: Date;
-  categories: Array<{ name: string }>;
-  images: Array<{
-    src: string;
-    caption?: string;
-    featured?: boolean;
-  }>;
+import type { Project } from "../../types/project"; // Import the Project type
+
+interface Props extends Project {
+  // Extend the Project interface
+  // No need to redefine properties, they are inherited from Project
 }
 
 const { title, slug, date, categories, images } = Astro.props;

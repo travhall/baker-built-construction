@@ -1,31 +1,21 @@
 ---
-import Layout from "./Layout.astro";
+import BaseLayout from "./BaseLayout.astro";
+import type { ProjectLayoutProps } from "@/types/project";
 
-interface Image {
-  src: string;
-  caption?: string;
-  featured?: boolean;
-}
-
-interface Project {
-  title: string;
-  date: Date;
-  description: string;
-  categories: Array<{ name: string }>;
-  images: Image[];
-}
-
-interface Props {
-  project: Project;
-  prevProject?: { title: string; slug: string };
-  nextProject?: { title: string; slug: string };
-}
-
-const { project, prevProject, nextProject } = Astro.props;
+const { project, prevProject, nextProject } = Astro.props as ProjectLayoutProps;
 const { title, date, description, categories, images } = project;
+
+// Metadata preparation
+const metaDescription =
+  typeof description === "string"
+    ? description.substring(0, 160)
+    : `View our ${title} project`;
+const featuredImage = images.find((img) => img.featured)?.src || images[0]?.src;
+
+console.log(description);
 ---
 
-<Layout title={title}>
+<BaseLayout title={title} description={metaDescription} image={featuredImage}>
   <article class="max-w-4xl mx-auto px-4 py-8">
     <header class="mb-8">
       <h1 class="text-4xl font-bold mb-4">{title}</h1>
@@ -50,7 +40,7 @@ const { title, date, description, categories, images } = project;
     </header>
 
     <div class="prose max-w-none mb-12">
-      <Fragment set:html={description} />
+      {description ? <Fragment set:html={description} /> : null}
     </div>
 
     <div class="grid gap-8">
@@ -128,4 +118,4 @@ const { title, date, description, categories, images } = project;
       }
     </nav>
   </article>
-</Layout>
+</BaseLayout>

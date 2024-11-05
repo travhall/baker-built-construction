@@ -1,86 +1,77 @@
 ---
-import Layout from "../../layouts/Layout.astro";
 import ProjectLayout from "../../layouts/ProjectLayout.astro";
-import { client } from "../../../tina/__generated__/client";
+import { client } from "../../../.tina/__generated__/client";
 
 export async function getStaticPaths() {
-  // Fetch all projects
-  const tinaResponse = await client.queries.projectConnection({
-    sort: "date",
-    last: 100, // Adjust based on your needs
-  });
+  try {
+    const tinaResponse = await client.queries.projectConnection({
+      sort: "date",
+      last: 100,
+    });
 
-  const projects = tinaResponse.data.projectConnection.edges || [];
+    if (!tinaResponse.data.projectConnection.edges) {
+      throw new Error("No projects found");
+    }
 
-  // Generate paths for each project
-  return projects
-    .map((edge, index) => {
-      const currentProject = edge?.node;
-      if (!currentProject) return null;
+    const projects = tinaResponse.data.projectConnection.edges || [];
 
-      // Get prev/next projects for navigation
-      const prevProject = projects[index + 1]?.node;
-      const nextProject = projects[index - 1]?.node;
+    return projects
+      .map((edge, index) => {
+        const currentProject = edge?.node;
+        if (!currentProject) return null;
 
-      return {
-        params: {
-          slug: currentProject._sys.filename,
-        },
-        props: {
-          // Current project data
-          project: currentProject
-            ? {
-                title: currentProject.title,
-                date: new Date(currentProject.date),
-                description: currentProject.description || "",
-                categories:
-                  currentProject.categories?.map((cat) => ({
-                    name: cat?.name || "",
-                  })) || [],
-                images:
-                  currentProject.images?.map((img) => ({
-                    src: img?.src || "",
-                    caption: img?.caption || "",
-                    featured: img?.featured || false,
-                  })) || [],
-              }
-            : null,
-          // Previous project data (if exists)
-          prevProject: prevProject?.title
-            ? {
-                title: prevProject.title,
-                slug: prevProject._sys.filename,
-              }
-            : undefined,
-          // Next project data (if exists)
-          nextProject: nextProject?.title
-            ? {
-                title: nextProject.title,
-                slug: nextProject._sys.filename,
-              }
-            : undefined,
-        },
-      };
-    })
-    .filter((path): path is NonNullable<typeof path> => path !== null);
+        const prevProject = projects[index + 1]?.node;
+        const nextProject = projects[index - 1]?.node;
+
+        return {
+          params: { slug: currentProject._sys.filename },
+          props: {
+            project: {
+              title: currentProject.title,
+              date: new Date(currentProject.date),
+              description: currentProject.description || "",
+              categories:
+                currentProject.categories?.map((cat) => ({
+                  name: cat?.name || "",
+                })) || [],
+              images:
+                currentProject.images?.map((img) => ({
+                  src: img?.src || "",
+                  caption: img?.caption || "",
+                  featured: img?.featured || false,
+                })) || [],
+            },
+            prevProject: prevProject?.title
+              ? {
+                  title: prevProject.title,
+                  slug: prevProject._sys.filename,
+                }
+              : undefined,
+            nextProject: nextProject?.title
+              ? {
+                  title: nextProject.title,
+                  slug: nextProject._sys.filename,
+                }
+              : undefined,
+          },
+        };
+      })
+      .filter((path): path is NonNullable<typeof path> => path !== null);
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    return [];
+  }
 }
 
-// Get the props from getStaticPaths
 const { project, prevProject, nextProject } = Astro.props;
 
-// If project doesn't exist, this will be caught by Astro's 404 handling
 if (!project) {
-  return new Response(null, {
-    status: 404,
-    statusText: "Not found",
-  });
+  return new Response(null, { status: 404, statusText: "Not found" });
 }
 ---
 
-<Layout title={project.title}>
-  <ProjectLayout
-    project={project}
-    prevProject={prevProject}
-    nextProject={nextProject}
-  />
-</Layout>
+<ProjectLayout
+  project={project}
+  prevProject={prevProject}
+  nextProject={nextProject}
+/>

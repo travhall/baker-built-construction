@@ -1,0 +1,87 @@
+---
+// src/components/common/ContactForm.astro
+const { onSubmit } = Astro.props;
+---
+
+<form
+  onsubmit={onSubmit}
+  class="space-y-4 p-4 bg-white rounded shadow-md max-w-4xl mx-auto mt-10"
+>
+  <div>
+    <label for="name" class="block text-sm font-medium text-gray-700">
+      Name <span class="text-gray-500">(required)</span>
+    </label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      required
+      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500"
+      aria-required="true"
+    />
+  </div>
+
+  <div>
+    <label for="email" class="block text-sm font-medium text-gray-700">
+      Email Address <span class="text-gray-500">(required)</span>
+    </label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      required
+      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500"
+      aria-required="true"
+    />
+  </div>
+
+  <div>
+    <label for="phone" class="block text-sm font-medium text-gray-700">
+      Phone Number <span class="text-gray-500">(required)</span>
+    </label>
+    <input
+      type="tel"
+      id="phone"
+      name="phone"
+      required
+      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500"
+      aria-required="true"
+    />
+  </div>
+
+  <div>
+    <label for="projectAddress" class="block text-sm font-medium text-gray-700">
+      Project Address <span class="text-gray-500">(required)</span>
+    </label>
+    <input
+      type="text"
+      id="projectAddress"
+      name="projectAddress"
+      required
+      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500"
+      aria-required="true"
+    />
+  </div>
+
+  <div>
+    <label
+      for="projectDescription"
+      class="block text-sm font-medium text-gray-700"
+    >
+      Project Description <span class="text-gray-500">(required)</span>
+    </label>
+    <textarea
+      id="projectDescription"
+      name="projectDescription"
+      required
+      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500"
+      aria-required="true"></textarea>
+  </div>
+
+  <button
+    type="submit"
+    class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+  >
+    Send
+  </button>
+</form>

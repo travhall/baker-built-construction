@@ -1,8 +1,27 @@
 ---
-//components/common/Navigation.astro
+// src/components/common/Navigation.astro
+
+const pages = [
+  { name: "Home", path: "/" },
+  { name: "About", path: "/about" },
+  { name: "Projects", path: "/projects" },
+  { name: "Contact", path: "/contact" },
+];
 ---
 
-<nav>
-<a href="/">Home</a>
-<a href="/projects">Projects</a>
+<nav aria-label="Main Navigation" class="bg-white shadow">
+  <ul class="flex space-x-4 p-4">
+    {
+      pages.map((page) => (
+        <li>
+          <a
+            href={page.path}
+            class="text-blue-600 hover:text-blue-800 transition duration-200"
+          >
+            {page.name}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
 </nav>

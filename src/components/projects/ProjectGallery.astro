@@ -18,6 +18,8 @@ interface Props {
 }
 
 const { projects } = Astro.props;
+let currentCategory = "";
+let currentSortOrder: "asc" | "desc" = "desc";
 
 // Get unique categories from all projects
 const categories = [
@@ -62,7 +64,11 @@ const categories = [
   </div>
 
   <div id="project-grid">
-    <ProjectGrid projects={projects} />
+    <ProjectGrid
+      projects={projects}
+      selectedCategory={currentCategory}
+      sortOrder={currentSortOrder}
+    />
   </div>
 </div>
 
@@ -70,15 +76,18 @@ const categories = [
   let currentCategory = "";
   let currentSortOrder: "asc" | "desc" = "desc";
 
+  // Update the ProjectGrid with the current filters
   function updateGrid() {
     const gridElement = document.getElementById("project-grid");
     if (gridElement) {
       // Using data attributes to pass the current filters to Astro
       gridElement.setAttribute("data-category", currentCategory);
       gridElement.setAttribute("data-sort", currentSortOrder);
-      // In a real implementation, you might want to use a client-side router
-      // or fetch updated content from an API endpoint
-      window.location.search = `?category=${currentCategory}&sort=${currentSortOrder}`;
+      // Update the ProjectGrid with the current filters
+      const event = new CustomEvent("updateGrid", {
+        detail: { category: currentCategory, sort: currentSortOrder },
+      });
+      gridElement.dispatchEvent(event);
     }
   }
 
