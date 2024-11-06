@@ -1,0 +1,51 @@
+---
+// Button.astro
+interface Props {
+  variant?: "primary" | "secondary" | "outline";
+  size?: "small" | "medium" | "large";
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
+  class?: string;
+}
+
+const {
+  variant = "primary",
+  size = "medium",
+  type = "button",
+  disabled = false,
+  class: className = "",
+  ...rest
+} = Astro.props;
+
+const variants = {
+  primary:
+    "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white focus-visible:outline-blue-600",
+  secondary:
+    "bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white focus-visible:outline-gray-600",
+  outline:
+    "border-2 border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus-visible:outline-blue-600",
+};
+
+const sizes = {
+  small: "px-3 py-1.5 text-sm",
+  medium: "px-4 py-2 text-base",
+  large: "px-6 py-3 text-lg",
+};
+
+const baseStyles = `
+  inline-flex items-center justify-center
+  rounded-md font-medium
+  transition-colors duration-200
+  focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+  disabled:opacity-50 disabled:pointer-events-none
+`;
+---
+
+<button
+  type={type}
+  disabled={disabled}
+  class:list={[baseStyles, variants[variant], sizes[size], className]}
+  {...rest}
+>
+  <slot />
+</button>

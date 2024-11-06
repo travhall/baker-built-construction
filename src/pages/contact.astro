@@ -1,35 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ContactForm from "../components/common/ContactForm.astro";
-
-const handleSubmit = async (event: Event) => {
-  event.preventDefault();
-  const formData = new FormData(event.target as HTMLFormElement);
-  const data = Object.fromEntries(formData);
-
-  console.log("Submitting data:", data); // Debug log
-
-  const response = await fetch("/api/contact", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  const result = await response.json();
-  console.log("Response from server:", result); // Debug log
-  if (result.success) {
-    alert("Message sent successfully!"); // Confirmation message
-  } else {
-    alert("Error sending message: " + result.error);
-  }
-};
 ---
 
 <BaseLayout
   title="Contact Us"
   description="Get in touch with Baker Built Construction"
 >
-  <ContactForm onSubmit={handleSubmit} />
+  <ContactForm />
 </BaseLayout>

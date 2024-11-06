@@ -68,6 +68,8 @@ const { project, prevProject, nextProject } = Astro.props;
 if (!project) {
   return new Response(null, { status: 404, statusText: "Not found" });
 }
+
+export const prerender = true;
 ---
 
 <ProjectLayout
