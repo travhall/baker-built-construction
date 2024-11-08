@@ -1,5 +1,5 @@
 ---
-import BaseLayout from "./BaseLayout.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 import type { ProjectLayoutProps } from "@/types/project";
 
 const { project, prevProject, nextProject } = Astro.props as ProjectLayoutProps;
@@ -16,19 +16,19 @@ console.log(description);
 ---
 
 <BaseLayout title={title} description={metaDescription} image={featuredImage}>
-  <article class="max-w-4xl mx-auto px-4 py-8">
+  <article class="max-w-4xl mx-auto px-4 py-8 bg-card text-card-foreground">
     <header class="mb-8">
-      <h1 class="text-4xl font-bold mb-4">{title}</h1>
+      <h1 class="text-4xl font-bold mb-4 text-foreground">{title}</h1>
       <div class="flex flex-wrap gap-2 mb-4">
         {
           categories.map((category) => (
-            <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">
+            <span class="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm">
               {category.name}
             </span>
           ))
         }
       </div>
-      <time datetime={date.toISOString()} class="text-gray-600">
+      <time datetime={date.toISOString()} class="text-muted-foreground">
         {
           new Date(date).toLocaleDateString("en-US", {
             year: "numeric",
@@ -39,7 +39,7 @@ console.log(description);
       </time>
     </header>
 
-    <div class="prose max-w-none mb-12">
+    <div class="prose dark:prose-invert max-w-none mb-12">
       {description ? <Fragment set:html={description} /> : null}
     </div>
 
@@ -53,7 +53,7 @@ console.log(description);
               class="w-full rounded-lg"
             />
             {image.caption && (
-              <figcaption class="text-center text-gray-600 italic">
+              <figcaption class="text-center text-muted-foreground italic">
                 {image.caption}
               </figcaption>
             )}
@@ -62,12 +62,14 @@ console.log(description);
       }
     </div>
 
-    <nav class="mt-12 flex justify-between items-center pt-8 border-t">
+    <nav
+      class="mt-12 flex justify-between items-center pt-8 border-t border-border"
+    >
       {
         prevProject ? (
           <a
             href={`/projects/${prevProject.slug}`}
-            class="group flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            class="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -94,7 +96,7 @@ console.log(description);
         nextProject ? (
           <a
             href={`/projects/${nextProject.slug}`}
-            class="group flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            class="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>{nextProject.title}</span>
             <svg

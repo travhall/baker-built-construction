@@ -1,0 +1,100 @@
+---
+// src/components/common/Hero.astro
+import Button from "@/components/common/Button.astro";
+
+interface CallToAction {
+  text: string;
+  href: string;
+  variant?: "primary" | "secondary" | "outline";
+  size?: "sm" | "default" | "lg";
+}
+
+interface Props {
+  headline: string;
+  copy: string;
+  image: {
+    src: string;
+    alt: string;
+  };
+  primaryCTA?: CallToAction;
+  secondaryCTA?: CallToAction;
+  class?: string;
+}
+
+const {
+  headline,
+  copy,
+  image,
+  primaryCTA,
+  secondaryCTA,
+  class: className = "",
+} = Astro.props;
+---
+
+<section
+  class:list={[
+    "relative min-h-screen w-full flex items-center justify-center px-4 py-20 md:py-32 bg-background text-foreground",
+    className,
+  ]}
+>
+  <div class="absolute inset-0 -z-10">
+    <!-- Background image -->
+    <img
+      src={image.src}
+      alt={image.alt}
+      class="w-full h-full object-cover"
+      loading="eager"
+      decoding="async"
+    />
+    <!-- Gradient overlay -->
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-background/50 to-background/80"
+    >
+    </div>
+  </div>
+
+  <div class="container mx-auto">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1
+        class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tighter mb-6 text-foreground"
+      >
+        {headline}
+      </h1>
+
+      <p
+        class="text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 mx-auto max-w-2xl"
+      >
+        {copy}
+      </p>
+
+      <!-- CTA Buttons container -->
+      {
+        (primaryCTA || secondaryCTA) && (
+          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            {primaryCTA && (
+              <a href={primaryCTA.href}>
+                <Button
+                  variant={primaryCTA.variant || "primary"}
+                  size={primaryCTA.size || "lg"}
+                >
+                  {primaryCTA.text}
+                </Button>
+              </a>
+            )}
+
+            {secondaryCTA && (
+              <a href={secondaryCTA.href}>
+                <Button
+                  variant={secondaryCTA.variant || "outline"}
+                  size={secondaryCTA.size || "lg"}
+                >
+                  {secondaryCTA.text}
+                </Button>
+              </a>
+            )}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>

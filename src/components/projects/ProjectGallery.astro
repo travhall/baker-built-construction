@@ -1,32 +1,21 @@
 ---
-import ProjectGrid from "./ProjectGrid.astro";
-
-interface Project {
-  title: string;
-  slug: string;
-  date: Date;
-  categories: Array<{ name: string }>;
-  images: Array<{
-    src: string;
-    caption?: string;
-    featured?: boolean;
-  }>;
-}
+import ProjectGrid from "@/components/projects/ProjectGrid.astro";
+import type { Project } from "@/types/project";
 
 interface Props {
   projects: Project[];
 }
 
 const { projects } = Astro.props;
-let currentCategory = "";
-let currentSortOrder: "asc" | "desc" = "desc";
 
-// Get unique categories from all projects
-const categories = [
-  ...new Set(
-    projects.flatMap((project) => project.categories.map((cat) => cat.name))
-  ),
-].sort();
+// Get unique categories from all projects with proper typing
+const categories = Array.from(
+  new Set(
+    projects.flatMap((project: Project) =>
+      project.categories.map((cat) => cat.name)
+    )
+  )
+).sort();
 ---
 
 <div class="space-y-8">
@@ -36,11 +25,11 @@ const categories = [
     <div class="flex flex-wrap gap-4">
       <select
         id="category-filter"
-        class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="px-4 py-2 border rounded-md bg-background text-foreground border-input focus:outline-none focus:ring-2 focus:ring-ring"
       >
         <option value="">All Categories</option>
         {
-          categories.map((category) => (
+          categories.map((category: string) => (
             <option value={category}>{category}</option>
           ))
         }
@@ -48,7 +37,7 @@ const categories = [
 
       <select
         id="sort-order"
-        class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="px-4 py-2 border rounded-md bg-background text-foreground border-input focus:outline-none focus:ring-2 focus:ring-ring"
       >
         <option value="desc">Newest First</option>
         <option value="asc">Oldest First</option>
@@ -57,63 +46,93 @@ const categories = [
 
     <button
       id="clear-filters"
-      class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900"
+      class="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
     >
       Clear Filters
     </button>
   </div>
 
-  <div id="project-grid">
-    <ProjectGrid
-      projects={projects}
-      selectedCategory={currentCategory}
-      sortOrder={currentSortOrder}
-    />
+  <div id="project-grid" data-projects={JSON.stringify(projects)}>
+    <ProjectGrid projects={projects} selectedCategory="" sortOrder="desc" />
   </div>
 </div>
 
 <script>
-  let currentCategory = "";
-  let currentSortOrder: "asc" | "desc" = "desc";
+  import type { Project } from "@/types/project";
 
-  // Update the ProjectGrid with the current filters
-  function updateGrid() {
-    const gridElement = document.getElementById("project-grid");
-    if (gridElement) {
-      // Using data attributes to pass the current filters to Astro
-      gridElement.setAttribute("data-category", currentCategory);
-      gridElement.setAttribute("data-sort", currentSortOrder);
-      // Update the ProjectGrid with the current filters
-      const event = new CustomEvent("updateGrid", {
-        detail: { category: currentCategory, sort: currentSortOrder },
+  class ProjectGalleryManager {
+    private gridElement: HTMLElement;
+    private categoryFilter: HTMLSelectElement;
+    private sortOrder: HTMLSelectElement;
+    private projects: Project[];
+
+    constructor() {
+      this.gridElement = document.getElementById("project-grid")!;
+      this.categoryFilter = document.getElementById(
+        "category-filter"
+      ) as HTMLSelectElement;
+      this.sortOrder = document.getElementById(
+        "sort-order"
+      ) as HTMLSelectElement;
+
+      const projectsData = this.gridElement.dataset.projects;
+      this.projects = projectsData
+        ? (JSON.parse(projectsData) as Project[])
+        : [];
+
+      this.initializeEventListeners();
+    }
+
+    private initializeEventListeners(): void {
+      this.categoryFilter?.addEventListener("change", () => this.updateGrid());
+      this.sortOrder?.addEventListener("change", () => this.updateGrid());
+
+      document
+        .getElementById("clear-filters")
+        ?.addEventListener("click", () => {
+          if (this.categoryFilter) this.categoryFilter.value = "";
+          if (this.sortOrder) this.sortOrder.value = "desc";
+          this.updateGrid();
+        });
+    }
+
+    private updateGrid(): void {
+      const filteredProjects = this.getFilteredProjects();
+      this.renderProjects(filteredProjects);
+    }
+
+    private getFilteredProjects(): Project[] {
+      let filtered = [...this.projects];
+
+      const category = this.categoryFilter?.value;
+      if (category) {
+        filtered = filtered.filter((project) =>
+          project.categories.some((cat) => cat.name === category)
+        );
+      }
+
+      const sortOrder = this.sortOrder?.value as "asc" | "desc";
+      filtered.sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
       });
-      gridElement.dispatchEvent(event);
+
+      return filtered;
+    }
+
+    private renderProjects(projects: Project[]): void {
+      const event = new CustomEvent("updateProjects", {
+        detail: {
+          projects,
+          category: this.categoryFilter?.value || "",
+          sort: this.sortOrder?.value || "desc",
+        },
+      });
+      this.gridElement.dispatchEvent(event);
     }
   }
 
-  // Category filter
-  const categoryFilter = document.getElementById(
-    "category-filter"
-  ) as HTMLSelectElement;
-  categoryFilter?.addEventListener("change", (e) => {
-    currentCategory = (e.target as HTMLSelectElement).value;
-    updateGrid();
-  });
-
-  // Sort order
-  const sortOrder = document.getElementById("sort-order") as HTMLSelectElement;
-  sortOrder?.addEventListener("change", (e) => {
-    currentSortOrder = (e.target as HTMLSelectElement).value as "asc" | "desc";
-    updateGrid();
-  });
-
-  // Clear filters
-  const clearFilters = document.getElementById("clear-filters");
-  clearFilters?.addEventListener("click", () => {
-    currentCategory = "";
-    currentSortOrder = "desc";
-    if (categoryFilter) categoryFilter.value = "";
-    if (sortOrder) sortOrder.value = "desc";
-    updateGrid();
-  });
+  // Initialize the manager when the DOM is ready
+  new ProjectGalleryManager();
 </script>

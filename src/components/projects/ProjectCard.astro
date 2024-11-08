@@ -1,10 +1,7 @@
 ---
-import type { Project } from "../../types/project"; // Import the Project type
+import type { Project } from "@/types/project";
 
-interface Props extends Project {
-  // Extend the Project interface
-  // No need to redefine properties, they are inherited from Project
-}
+interface Props extends Project {}
 
 const { title, slug, date, categories, images } = Astro.props;
 
@@ -13,32 +10,37 @@ const featuredImage = images.find((img) => img.featured) || images[0];
 ---
 
 <article
-  class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+  class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 bg-card text-card-foreground"
 >
   <a href={`/projects/${slug}`} class="block">
-    {
-      featuredImage && (
-        <div class="aspect-video w-full overflow-hidden">
+    <div class="aspect-video w-full overflow-hidden bg-muted">
+      {
+        featuredImage ? (
           <img
             src={featuredImage.src}
             alt={featuredImage.caption || title}
             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onerror={`this.style.display='none'; this.parentElement.innerHTML='<div class="h-full w-full flex items-center justify-center text-muted-foreground">Image not available</div>'`}
           />
-        </div>
-      )
-    }
+        ) : (
+          <div class="h-full w-full flex items-center justify-center text-muted-foreground">
+            No image available
+          </div>
+        )
+      }
+    </div>
     <div class="p-4">
       <h3 class="text-xl font-semibold mb-2">{title}</h3>
       <div class="flex flex-wrap gap-2 mb-2">
         {
           categories.map((category) => (
-            <span class="text-sm px-2 py-1 bg-gray-100 rounded-full">
+            <span class="text-sm px-2 py-1 bg-secondary text-secondary-foreground rounded-full">
               {category.name}
             </span>
           ))
         }
       </div>
-      <time datetime={date.toISOString()} class="text-sm text-gray-600">
+      <time datetime={date.toISOString()} class="text-sm text-muted-foreground">
         {
           new Date(date).toLocaleDateString("en-US", {
             year: "numeric",

@@ -1,10 +1,29 @@
 ---
 // src/pages/index.astro
-import BaseLayout from "../layouts/BaseLayout.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/home/Hero.astro";
+import Services from "@/components/home/Services.astro";
+import FeaturedProjects from "@/components/home/FeaturedProjects.astro";
 ---
 
 <BaseLayout title="Home" description="Baker Built Construction">
-  <main>
-    <h1>Welcome to Baker Built Construction</h1>
-  </main>
+  <Hero
+    headline="Bringing Your Home Building Dreams to Life"
+    copy="At Baker Built Construction, we transform spaces through exceptional craftsmanship and attention to detail. Our dedicated team brings decades of experience to every project, ensuring your vision becomes reality with precision and care."
+    image={{
+      src: "/images/home-bg.jpg",
+      alt: "Construction site background",
+    }}
+    primaryCTA={{
+      text: "Get Started",
+      href: "/contact",
+    }}
+    secondaryCTA={{
+      text: "Learn More",
+      href: "/about",
+      variant: "secondary",
+    }}
+  />
+  <Services />
+  <FeaturedProjects />
 </BaseLayout>

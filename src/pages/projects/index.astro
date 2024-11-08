@@ -1,7 +1,7 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import ProjectGallery from "../../components/projects/ProjectGallery.astro";
-import { client } from "../../../.tina/__generated__/client";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ProjectGallery from "@/components/projects/ProjectGallery.astro";
+import { client } from "~/.tina/__generated__/client";
 
 // Get URL params for filtering/sorting
 const { searchParams } = Astro.url;
@@ -59,7 +59,7 @@ const sortedProjects = [...filteredProjects].sort((a, b) => {
 ---
 
 <BaseLayout title="Our Projects" description="View our construction projects">
-  <main class="container mx-auto px-4 py-8">
+  <main class="container mx-auto px-4 py-8 bg-background text-foreground">
     <h1 class="text-3xl font-bold mb-8">Our Projects</h1>
     <ProjectGallery projects={sortedProjects} />
   </main>
